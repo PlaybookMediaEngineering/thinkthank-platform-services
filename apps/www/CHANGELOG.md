@@ -1,10 +1,9 @@
-# @solomon-ai/www
+# Changelog
 
-## 1.0.1
+## 2024-09-13
 
-### Patch Changes
+- Update dependencies
 
-- Updated dependencies [2a890e2]
-  - @midday/supabase@2.0.0
-  - @midday/ui@2.0.0
-  - @internal/app-config@1.0.0
+## 2024-09-12
+
+- Initial release

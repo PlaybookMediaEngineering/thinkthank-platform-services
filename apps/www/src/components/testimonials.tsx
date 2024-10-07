@@ -1,128 +1,250 @@
-import { InfiniteMovingCards } from "@/components/infinite-moving-cards";
+'use client'
+
+import * as Headless from '@headlessui/react'
+import { ArrowLongRightIcon } from '@heroicons/react/20/solid'
+import { clsx } from 'clsx'
+import {
+  MotionValue,
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+  type HTMLMotionProps,
+} from 'framer-motion'
+import { useCallback, useLayoutEffect, useRef, useState } from 'react'
+import useMeasure, { type RectReadOnly } from 'react-use-measure'
+import { Container } from './container'
+import { Link } from './link'
+import { Heading, Subheading } from './text'
 
 const testimonials = [
   {
-    name: "Lucas Grey",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1744288035314008064/kAQycMrk_400x400.png",
-    handle: "@ImLucasGrey",
-    verified: true,
-    quote: "This is so ingenious and good!",
-  },
-  {
-    name: "Patrick Tobler",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1643364165627551744/Z92S8fqD_400x400.jpg",
-    handle: "@Padierfind",
-    verified: true,
-    quote: "I love this",
-  },
-  {
-    name: "Ben Tossell",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1595060668897677314/pHMUc1Zb_400x400.jpg",
-    handle: "@bentossell",
-    verified: true,
+    img: './testimonials/tina-yards.jpg',
+    name: 'Tina Yards',
+    title: 'VP of Sales, Protocol',
     quote:
-      "well, an actually enjoyable way to organise my whole in and out of my business, plus highlighted a bunch of things I need to cancel",
+      'Thanks to Think Thank Media, we’re finding new leads that we never would have found with legal methods.',
   },
   {
-    name: "Christian Alares",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1194368464946974728/1D2biimN_400x400.jpg",
-    handle: "@c_alares",
-    verified: true,
-    quote: "Omg, this is so cool!",
-  },
-  {
-    name: "Zeno Rocha",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1145166093029265408/9gJSVrQ7_400x400.jpg",
-    handle: "@zenorocha",
-    verified: true,
-    quote: "this is absolutely amazing",
-  },
-  {
-    name: "Bailey Simrell",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1488962358609330178/tdTC7o6M_400x400.jpg",
-    handle: "@baileysimrell",
-    verified: true,
-    quote: "Awesome man, looks amazing 🔥",
-  },
-  {
-    name: "Cal.com",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1729977047999524864/suW5VpQZ_400x400.jpg",
-    handle: "@calcom",
-    verified: true,
-    quote: "We love @middayai 🖤",
-  },
-  {
-    name: "Guillermo Rauch",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1783856060249595904/8TfcCN0r_400x400.jpg",
-    handle: "@rauchg",
-    verified: true,
+    img: './testimonials/conor-neville.jpg',
+    name: 'Conor Neville',
+    title: 'Head of Customer Success, TaxPal',
     quote:
-      "nice to see @middayai generative ui features built on @vercel AI sdk midday is becoming one of the best OSS @nextjs real-world apps",
+      'Think Thank Media made undercutting all of our competitors an absolute breeze.',
   },
   {
-    name: "Kyle @ KyTech",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1586538348964978689/nkpJWZxG_400x400.png",
-    handle: "@KyTechInc",
-    verified: true,
-    quote: "so ready! 🙌",
+    img: './testimonials/amy-chase.jpg',
+    name: 'Amy Chase',
+    title: 'Head of GTM, Pocket',
+    quote:
+      'We closed a deal in literally a few minutes because we knew their exact budget.',
   },
   {
-    name: "Steven Tey",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1506792347840888834/dS-r50Je_400x400.jpg",
-    handle: "@steventey",
-    verified: true,
-    quote: `Just found my new favorite open-source project → http://solomon-ai.app
+    img: './testimonials/veronica-winton.jpg',
+    name: 'Veronica Winton',
+    title: 'CSO, Planeteria',
+    quote:
+      'We’ve managed to put two of our main competitors out of business in 6 months.',
+  },
+  {
+    img: './testimonials/dillon-lenora.jpg',
+    name: 'Dillon Lenora',
+    title: 'VP of Sales, Detax',
+    quote:
+      'I was able to replace 80% of my team with Think Thank MediaAI bots.',
+  },
+  {
+    img: './testimonials/harriet-arron.jpg',
+    name: 'Harriet Arron',
+    title: 'Account Manager, Commit',
+    quote:
+      'I’ve smashed all my targets without having to speak to a lead in months.',
+  },
+]
 
-    It's a modern layer on top of Quickbooks/Xero that lets you automate the tedious accounting aspects of your business and focus on what matters – your product.
-    
-    Built by the 🐐s 
-    @pontusab
-     + 
-    @viktorhofte
-     👏`,
-  },
-  {
-    name: "Gokul",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1687344852600516608/gVS34j7h_400x400.jpg",
-    handle: "@KyTechInc",
-    verified: true,
-    quote: "🖤 Awesome work. just love it.",
-  },
-  {
-    name: "Peer Richelsen — oss/acc",
-    avatarUrl:
-      "https://pbs.twimg.com/profile_images/1623291991709700097/aBL_VpMC_400x400.jpg",
-    handle: "@peer_rich",
-    verified: true,
-    quote:
-      "the best thing i couldve done as a founder is build something that helps other founders. so proud 🖤 @middayai",
-  },
-];
+function TestimonialCard({
+  name,
+  title,
+  img,
+  children,
+  bounds,
+  scrollX,
+  ...props
+}: {
+  img: string
+  name: string
+  title: string
+  children: React.ReactNode
+  bounds: RectReadOnly
+  scrollX: MotionValue<number>
+} & HTMLMotionProps<'div'>) {
+  let ref = useRef<HTMLDivElement | null>(null)
 
-interface TestimonialProps {
-  enable?: boolean;
+  let computeOpacity = useCallback(() => {
+    let element = ref.current
+    if (!element || bounds.width === 0) return 1
+
+    let rect = element.getBoundingClientRect()
+
+    if (rect.left < bounds.left) {
+      let diff = bounds.left - rect.left
+      let percent = diff / rect.width
+      return Math.max(0.5, 1 - percent)
+    } else if (rect.right > bounds.right) {
+      let diff = rect.right - bounds.right
+      let percent = diff / rect.width
+      return Math.max(0.5, 1 - percent)
+    } else {
+      return 1
+    }
+  }, [ref, bounds.width, bounds.left, bounds.right])
+
+  let opacity = useSpring(computeOpacity(), {
+    stiffness: 154,
+    damping: 23,
+  })
+
+  useLayoutEffect(() => {
+    opacity.set(computeOpacity())
+  }, [computeOpacity, opacity])
+
+  useMotionValueEvent(scrollX, 'change', () => {
+    opacity.set(computeOpacity())
+  })
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ opacity }}
+      {...props}
+      className="relative flex aspect-[9/16] w-72 shrink-0 snap-start scroll-ml-[var(--scroll-padding)] flex-col justify-end overflow-hidden rounded-3xl sm:aspect-[3/4] sm:w-96"
+    >
+      <img
+        alt=""
+        src={img}
+        className="absolute inset-x-0 top-0 aspect-square w-full object-cover"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 rounded-3xl bg-gradient-to-t from-black from-[calc(7/16*100%)] ring-1 ring-inset ring-gray-950/10 sm:from-25%"
+      />
+      <figure className="relative p-10">
+        <blockquote>
+          <p className="relative text-xl/7 text-white">
+            <span aria-hidden="true" className="absolute -translate-x-full">
+              “
+            </span>
+            {children}
+            <span aria-hidden="true" className="absolute">
+              ”
+            </span>
+          </p>
+        </blockquote>
+        <figcaption className="mt-6 border-t border-white/20 pt-6">
+          <p className="text-sm/6 font-medium text-white">{name}</p>
+          <p className="text-sm/6 font-medium">
+            <span className="bg-gradient-to-r from-[#fff1be] from-[28%] via-[#ee87cb] via-[70%] to-[#b060ff] bg-clip-text text-transparent">
+              {title}
+            </span>
+          </p>
+        </figcaption>
+      </figure>
+    </motion.div>
+  )
 }
 
-export function Testimonials({ enable = false }: TestimonialProps) {
-  if (!enable) {
-    return null;
+function CallToAction() {
+  return (
+    <div>
+      <p className="max-w-sm text-sm/6 text-gray-600">
+        Join the best sellers in the business and start using Think Thank Media
+        to hit your targets today.
+      </p>
+      <div className="mt-2">
+        <Link
+          href="https://app.thinkthankmedia.io"
+          className="inline-flex items-center gap-2 text-sm/6 font-medium text-pink-600"
+        >
+          Get started
+          <ArrowLongRightIcon className="size-5" />
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+export function Testimonials() {
+  let scrollRef = useRef<HTMLDivElement | null>(null)
+  let { scrollX } = useScroll({ container: scrollRef })
+  let [setReferenceWindowRef, bounds] = useMeasure()
+  let [activeIndex, setActiveIndex] = useState(0)
+
+  useMotionValueEvent(scrollX, 'change', (x) => {
+    setActiveIndex(Math.floor(x / scrollRef.current!.children[0].clientWidth))
+  })
+
+  function scrollTo(index: number) {
+    let gap = 32
+    let width = (scrollRef.current!.children[0] as HTMLElement).offsetWidth
+    scrollRef.current!.scrollTo({ left: (width + gap) * index })
   }
 
   return (
-    <div className="pb-22 relative">
-      <h3 className="mb-8 text-4xl font-medium">What people say</h3>
-      <InfiniteMovingCards items={testimonials} direction="left" speed="slow" />
+    <div className="overflow-hidden py-32">
+      <Container>
+        <div ref={setReferenceWindowRef}>
+          <Subheading>What everyone is saying</Subheading>
+          <Heading as="h3" className="mt-2">
+            Trusted by professionals.
+          </Heading>
+        </div>
+      </Container>
+      <div
+        ref={scrollRef}
+        className={clsx([
+          'mt-16 flex gap-8 px-[var(--scroll-padding)]',
+          '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden',
+          'snap-x snap-mandatory overflow-x-auto overscroll-x-contain scroll-smooth',
+          '[--scroll-padding:max(theme(spacing.6),calc((100vw-theme(maxWidth.2xl))/2))] lg:[--scroll-padding:max(theme(spacing.8),calc((100vw-theme(maxWidth.7xl))/2))]',
+        ])}
+      >
+        {testimonials.map(({ img, name, title, quote }, testimonialIndex) => (
+          <TestimonialCard
+            key={testimonialIndex}
+            name={name}
+            title={title}
+            img={img}
+            bounds={bounds}
+            scrollX={scrollX}
+            onClick={() => scrollTo(testimonialIndex)}
+          >
+            {quote}
+          </TestimonialCard>
+        ))}
+        <div className="w-[42rem] shrink-0 sm:w-[54rem]" />
+      </div>
+      <Container className="mt-16">
+        <div className="flex justify-between">
+          <CallToAction />
+          <div className="hidden sm:flex sm:gap-2">
+            {testimonials.map(({ name }, testimonialIndex) => (
+              <Headless.Button
+                key={testimonialIndex}
+                onClick={() => scrollTo(testimonialIndex)}
+                data-active={
+                  activeIndex === testimonialIndex ? true : undefined
+                }
+                aria-label={`Scroll to testimonial from ${name}`}
+                className={clsx(
+                  'size-2.5 rounded-full border border-transparent bg-gray-300 transition',
+                  'data-[active]:bg-gray-400 data-[hover]:bg-gray-400',
+                  'forced-colors:data-[active]:bg-[Highlight] forced-colors:data-[focus]:outline-offset-4',
+                )}
+              />
+            ))}
+          </div>
+        </div>
+      </Container>
     </div>
-  );
+  )
 }
