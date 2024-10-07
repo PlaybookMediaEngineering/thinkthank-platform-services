@@ -1,0 +1,6 @@
+{
+  "name": "@midday/tsconfig",
+  "private": true,
+  "version": "2.0.0",
+  "files": ["base.json"]
+}

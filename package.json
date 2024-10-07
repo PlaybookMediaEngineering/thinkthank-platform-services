@@ -1,0 +1,72 @@
+{
+  "name": "midday",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*",
+    "packages/email/*",
+    "turbo/*",
+    "internal/*",
+    "tooling/*",
+    "services/*",
+    "docs/*"
+  ],
+  "lint-staged": {
+    "*": []
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
+  },
+  "scripts": {
+    "build": "turbo build",
+    "clean": "git clean -xdf node_modules",
+    "clean:workspaces": "turbo clean",
+    "dev": "turbo dev --parallel",
+    "test": "turbo test --parallel",
+    "start:dashboard": "turbo start --filter=@midday/dashboard",
+    "start:website": "turbo start --filter=@midday/website",
+    "dev:api": "turbo dev --filter=@midday/api",
+    "dev:dashboard": "turbo dev --filter=@midday/dashboard",
+    "build:dashboard": "turbo build --filter=@midday/dashboard",
+    "dev:engine": "turbo dev --filter=@midday/engine",
+    "dev:website": "turbo dev --filter=@midday/website ",
+    "dev:desktop": "turbo dev --filter=@midday/desktop",
+    "jobs:dashboard": "turbo jobs --filter=@midday/dashboard",
+    "format": "biome format --write .",
+    "lint": "turbo lint && manypkg check",
+    "typecheck": "turbo typecheck",
+    "prepare": "husky",
+    "release": "turbo run build lint typecheck && changeset version && changeset publish",
+    "reset:changelog": "bun run rm -rf */**/CHANGELOG.md",
+    "bootstrap": "turbo run bootstrap",
+    "bump-package-version": "bunx changeset",
+    "compile-tw-config": "tsc --noEmitOnError tooling/tailwind-config/index.ts --outDir  ./",
+    "tailwind-config-viewer": " tailwind-config-viewer -c ./index.js -o -p 3333",
+    "precommit": "bun run test && bun run build && bun run format",
+    "bump-versions": "bun changeset version && bun install",
+    "format:write": "prettier \"**/*\" \"!turbo/**\" --ignore-unknown --list-different --write",
+    "format:check": "prettier \"**/*\" \"!turbo/**\" --ignore-unknown --list-different",
+    "gen": "turbo gen --config 'turbo/generators/config.ts'",
+    "changeset": "bunx changeset",
+    "generate": "cd turbo && make generate"
+  },
+  "dependencies": {
+    "@biomejs/biome": "1.9.1",
+    "@manypkg/cli": "^0.21.4",
+    "turbo": "2.1.2",
+    "typescript": "^5.6.2"
+  },
+  "packageManager": "bun@1.1.27",
+  "resolutions": {
+    "jackspeak": "2.1.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^17.0.0",
+    "@commitlint/config-conventional": "^17.0.0",
+    "@commitlint/types": "^17.0.0",
+    "husky": "^8.0.0"
+  },
+  "version": "0.6.0"
+}

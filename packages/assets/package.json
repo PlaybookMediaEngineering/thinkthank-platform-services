@@ -1,0 +1,9 @@
+{
+  "name": "@midday/assets",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Solomon's assets package",
+  "license": "MIT",
+  "author": "Solomon",
+  "files": ["**/*"]
+}

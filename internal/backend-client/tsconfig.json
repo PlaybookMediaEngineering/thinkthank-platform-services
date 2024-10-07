@@ -1,0 +1,11 @@
+{
+  "extends": ["@midday/tsconfig/base.json"],
+  "compilerOptions": {
+    "incremental": true,
+    "tsBuildInfoFile": ".tsbuildinfo",
+    "noImplicitAny": false,
+    "jsx": "preserve",
+    "moduleResolution": "Bundler"
+  },
+  "include": ["**/*.ts", "**/*.js"]
+}

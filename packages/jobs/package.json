@@ -1,0 +1,30 @@
+{
+  "name": "@midday/jobs",
+  "version": "2.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "clean": "rm -rf .turbo node_modules",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test src"
+  },
+  "dependencies": {
+    "@fast-csv/format": "5.0.0",
+    "@midday/documents": "workspace:*",
+    "@midday/supabase": "workspace:*",
+    "@midday/engine": "workspace:*",
+    "@midday/import": "workspace:*",
+    "@solomon-ai/financial-engine-sdk": "^0.0.1-alpha.1",
+    "@trigger.dev/react": "2.3.19",
+    "@trigger.dev/resend": "2.3.19",
+    "@trigger.dev/sdk": "2.3.19",
+    "@trigger.dev/supabase": "^2.3.19",
+    "@zip.js/zip.js": "2.7.52",
+    "change-case": "^5.4.4",
+    "date-fns": "^2.30.0",
+    "nanoid": "^5.0.7",
+    "pdf-lib": "^1.17.1"
+  }
+}
