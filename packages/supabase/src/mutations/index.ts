@@ -1,5 +1,3 @@
-import { getAccessValidForDays } from "@midday/engine/src/providers/gocardless/utils";
-import { addDays } from "date-fns";
 import { getCurrentUserTeamQuery, getUserInviteQuery } from "../queries";
 import type { Client } from "../types";
 
@@ -24,104 +22,6 @@ type CreateBankAccountsPayload = {
   provider: "gocardless" | "teller" | "plaid";
 };
 
-export async function createBankAccounts(
-  supabase: Client,
-  {
-    accounts,
-    accessToken,
-    enrollmentId,
-    referenceId,
-    teamId,
-    userId,
-    provider,
-  }: CreateBankAccountsPayload,
-) {
-  // Get first account to create a bank connection
-  const account = accounts?.at(0);
-
-  if (!account) {
-    return;
-  }
-
-  // NOTE: GoCardLess connection expires after 90-180 days
-  const expiresAt =
-    provider === "gocardless"
-      ? addDays(
-          new Date(),
-          getAccessValidForDays({ institutionId: account.institution_id }),
-        ).toDateString()
-      : undefined;
-
-  const bankConnection = await supabase
-    .from("bank_connections")
-    .upsert(
-      {
-        institution_id: account.institution_id,
-        name: account.bank_name,
-        logo_url: account.logo_url,
-        team_id: teamId,
-        provider,
-        access_token: accessToken,
-        enrollment_id: enrollmentId,
-        reference_id: referenceId,
-        expires_at: expiresAt,
-      },
-      {
-        onConflict: "institution_id, team_id",
-      },
-    )
-    .select()
-    .single();
-
-  return supabase
-    .from("bank_accounts")
-    .upsert(
-      accounts.map(
-        (account) => ({
-          account_id: account.account_id,
-          bank_connection_id: bankConnection?.data?.id,
-          team_id: teamId,
-          created_by: userId,
-          name: account.name,
-          currency: account.currency,
-          enabled: account.enabled,
-          type: account.type,
-          balance: account.balance ?? 0,
-        }),
-        {
-          onConflict: "account_id",
-        },
-      ),
-    )
-    .select();
-}
-
-type UpdateBankConnectionData = {
-  id: string;
-  referenceId?: string;
-};
-
-// NOTE: Only GoCardLess needs to be updated
-export async function updateBankConnection(
-  supabase: Client,
-  data: UpdateBankConnectionData,
-) {
-  const { id, referenceId } = data;
-
-  return await supabase
-    .from("bank_connections")
-    .update({
-      expires_at: addDays(
-        new Date(),
-        getAccessValidForDays({ institutionId: id }),
-      ).toDateString(),
-      reference_id: referenceId,
-    })
-    .eq("id", id)
-    .select()
-    .single();
-}
-
 type CreateTransactionsData = {
   transactions: any[];
   teamId: string;
@@ -129,7 +29,7 @@ type CreateTransactionsData = {
 
 export async function createTransactions(
   supabase: Client,
-  data: CreateTransactionsData,
+  data: CreateTransactionsData
 ) {
   const { transactions, teamId } = data;
 
@@ -137,14 +37,14 @@ export async function createTransactions(
     transactions.map((transaction) => ({
       ...transaction,
       team_id: teamId,
-    })),
+    }))
   );
 }
 
 export async function updateTransaction(
   supabase: Client,
   id: string,
-  data: any,
+  data: any
 ) {
   return supabase
     .from("transactions")
@@ -208,7 +108,7 @@ type UpdateUserTeamRoleParams = {
 
 export async function updateUserTeamRole(
   supabase: Client,
-  params: UpdateUserTeamRoleParams,
+  params: UpdateUserTeamRoleParams
 ) {
   const { role, userId, teamId } = params;
 
@@ -234,7 +134,7 @@ type DeleteTeamMemberParams = {
 
 export async function deleteTeamMember(
   supabase: Client,
-  params: DeleteTeamMemberParams,
+  params: DeleteTeamMemberParams
 ) {
   return supabase
     .from("users_on_team")
@@ -263,7 +163,7 @@ type UpdateBankAccountParams = {
 
 export async function updateBankAccount(
   supabase: Client,
-  params: UpdateBankAccountParams,
+  params: UpdateBankAccountParams
 ) {
   const { id, teamId, ...data } = params;
 
@@ -283,7 +183,7 @@ type UpdateSimilarTransactionsCategoryParams = {
 
 export async function updateSimilarTransactionsCategory(
   supabase: Client,
-  params: UpdateSimilarTransactionsCategoryParams,
+  params: UpdateSimilarTransactionsCategoryParams
 ) {
   const { id, team_id } = params;
 
@@ -312,7 +212,7 @@ type UpdateSimilarTransactionsRecurringParams = {
 
 export async function updateSimilarTransactionsRecurring(
   supabase: Client,
-  params: UpdateSimilarTransactionsRecurringParams,
+  params: UpdateSimilarTransactionsRecurringParams
 ) {
   const { id, team_id } = params;
 
@@ -343,7 +243,7 @@ export type Attachment = {
 
 export async function createAttachments(
   supabase: Client,
-  attachments: Attachment[],
+  attachments: Attachment[]
 ) {
   const { data: userData } = await getCurrentUserTeamQuery(supabase);
 
@@ -353,7 +253,7 @@ export async function createAttachments(
       attachments.map((attachment) => ({
         ...attachment,
         team_id: userData?.team_id,
-      })),
+      }))
     )
     .select();
 
@@ -458,7 +358,7 @@ type UpdateInboxByIdParams = {
 
 export async function updateInboxById(
   supabase: Client,
-  params: UpdateInboxByIdParams,
+  params: UpdateInboxByIdParams
 ) {
   const { id, teamId, ...data } = params;
 
@@ -516,7 +416,7 @@ type CreateProjectParams = {
 
 export async function createProject(
   supabase: Client,
-  params: CreateProjectParams,
+  params: CreateProjectParams
 ) {
   const { data: userData } = await getCurrentUserTeamQuery(supabase);
 

@@ -1,0 +1,48 @@
+name: Production Deployment - Public Site
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_PLATFORM }}
+  TURBO_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+  TURBO_TEAM: ${{ secrets.VERCEL_ORG_ID }}
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - apps/platform/**
+      - packages/ui/**
+  workflow_dispatch:
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          cache: 'pnpm'
+      - name: Install dependencies
+        run: pnpm install
+      # - name: 🔦 Run linter
+      #   run: pnpm run lint --filter=@midday/dashboard
+      # - name: 🪐 Check TypeScript
+      #   run: pnpm run typecheck --filter=@midday/dashboard
+      # - name: 🧪 Run unit tests
+      #   run: pnpm run test
+      - name: 📤 Pull Vercel Environment Information
+        run: pnpm dlx vercel env pull .env --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: 📤 Pull Vercel Environment Information
+        run: pnpm dlx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: 🏗 Build Project Artifacts
+        run: pnpm dlx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          NODE_OPTIONS: "--max_old_space_size=8192"
+      - name: Deploy Project Artifacts to Vercel
+        run: |
+          pnpm dlx vercel deploy --prebuilt --prod --archive=tgz --token=${{ secrets.VERCEL_TOKEN }} > domain.txt
+          pnpm dlx vercel alias --scope=${{ secrets.VERCEL_ORG_ID }} --token=${{ secrets.VERCEL_TOKEN }} set `cat domain.txt` platform.thinkthank.io

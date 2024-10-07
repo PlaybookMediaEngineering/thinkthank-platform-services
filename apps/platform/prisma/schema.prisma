@@ -1,0 +1,124 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+  schemas   = ["prisma"]
+}
+
+model Account {
+  id                String    @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  createdAt         DateTime? @default(now())
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@schema("prisma")
+}
+
+model Session {
+  id           String    @id @default(cuid())
+  sessionToken String    @unique
+  userId       String
+  expires      DateTime
+  createdAt    DateTime? @default(now())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@schema("prisma")
+}
+
+model User {
+  id                    String                @id @default(cuid())
+  name                  String?
+  username              String?               @unique
+  bio                   String?
+  email                 String?               @unique
+  emailVerified         DateTime?
+  hashedPassword        String?
+  image                 String?
+  calAccountId          Int?                  @unique
+  calAccessToken        String?               @unique
+  calRefreshToken       String?               @unique
+  createdAt             DateTime?             @default(now())
+  status                UserStatus            @default(PENDING)
+  accounts              Account[]
+  selectedFilterOptions FilterOptionsOnUser[]
+  sessions              Session[]
+  calAccount            CalAccount?           @relation(fields: [calAccountId], references: [id], onDelete: Cascade)
+
+  @@schema("prisma")
+}
+
+model CalAccount {
+  id                Int       @id
+  username          String?   @unique
+  email             String    @unique
+  timeZone          String
+  weekStart         String
+  createdDate       String
+  timeFormat        Int?
+  defaultScheduleId Int?
+  createdAt         DateTime? @default(now())
+  user              User?
+
+  @@schema("prisma")
+}
+
+model VerificationToken {
+  identifier String
+  token      String    @unique
+  expires    DateTime
+  createdAt  DateTime? @default(now())
+
+  @@unique([identifier, token])
+  @@schema("prisma")
+}
+
+model FilterOption {
+  fieldId               String                @id @unique
+  fieldValue            String
+  fieldLabel            String
+  createdAt             DateTime?             @default(now())
+  filterCategoryFieldId String
+  filterCategoryValue   String
+  filterCategoryLabel   String
+  selectedByUsers       FilterOptionsOnUser[]
+
+  @@unique([fieldId, filterCategoryFieldId])
+  @@index([fieldId, filterCategoryFieldId])
+  @@schema("prisma")
+}
+
+model FilterOptionsOnUser {
+  userId                String
+  filterOptionFieldId   String
+  filterCategoryFieldId String
+  createdAt             DateTime?    @default(now())
+  filterOption          FilterOption @relation(fields: [filterOptionFieldId, filterCategoryFieldId], references: [fieldId, filterCategoryFieldId])
+  user                  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, filterOptionFieldId, filterCategoryFieldId])
+  @@index([userId, filterOptionFieldId, filterCategoryFieldId])
+  @@schema("prisma")
+}
+
+enum UserStatus {
+  APPROVED
+  PENDING
+
+  @@schema("prisma")
+}
