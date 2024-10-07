@@ -29,7 +29,7 @@ jobs:
       SUPABASE_AUTH_SLACK_CLIENT_ID: ${{ secrets.SUPABASE_AUTH_SLACK_CLIENT_ID }}
       SUPABASE_AUTH_SLACK_SECRET: ${{ secrets.SUPABASE_AUTH_SLACK_SECRET }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: supabase/setup-cli@v1
         with:
