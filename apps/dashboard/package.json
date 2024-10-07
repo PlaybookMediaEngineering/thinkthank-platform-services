@@ -45,7 +45,7 @@
     "@uidotdev/usehooks": "^2.4.1",
     "@upstash/ratelimit": "^2.0.3",
     "@midday/stripe": "workspace:*",
-    "ai": "3.3.40",
+    "ai": "3.4.9",
     "change-case": "^5.4.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
