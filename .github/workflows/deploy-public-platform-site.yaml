@@ -1,4 +1,4 @@
-name: Production Deployment - Public Site
+name: Production Deployment - Public Platform Site
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_PLATFORM }}
@@ -19,15 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v2
+      - uses: oven-sh/setup-bun@v1
         with:
-          version: 8
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: 'pnpm'
+          bun-version: latest
       - name: Install dependencies
-        run: pnpm install
+        run: bun install
       # - name: 🔦 Run linter
       #   run: pnpm run lint --filter=@midday/dashboard
       # - name: 🪐 Check TypeScript
@@ -35,14 +31,14 @@ jobs:
       # - name: 🧪 Run unit tests
       #   run: pnpm run test
       - name: 📤 Pull Vercel Environment Information
-        run: pnpm dlx vercel env pull .env --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: bunx vercel env pull .env --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       - name: 📤 Pull Vercel Environment Information
-        run: pnpm dlx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        run: bunx vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
       - name: 🏗 Build Project Artifacts
-        run: pnpm dlx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: bunx vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
         env:
           NODE_OPTIONS: "--max_old_space_size=8192"
       - name: Deploy Project Artifacts to Vercel
         run: |
-          pnpm dlx vercel deploy --prebuilt --prod --archive=tgz --token=${{ secrets.VERCEL_TOKEN }} > domain.txt
-          pnpm dlx vercel alias --scope=${{ secrets.VERCEL_ORG_ID }} --token=${{ secrets.VERCEL_TOKEN }} set `cat domain.txt` platform.thinkthank.io
+          bunx vercel deploy --prebuilt --prod --archive=tgz --token=${{ secrets.VERCEL_TOKEN }} > domain.txt
+          bunx vercel alias --scope=${{ secrets.VERCEL_ORG_ID }} --token=${{ secrets.VERCEL_TOKEN }} set `cat domain.txt` platform.thinkthank.io
